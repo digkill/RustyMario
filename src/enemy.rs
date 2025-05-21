@@ -56,4 +56,6 @@ impl Enemy {
         let rect = Rect::new(self.pos.x, self.pos.y, 64.0, 64.0);
         rect.contains(player_pos)
     }
+
+
 }

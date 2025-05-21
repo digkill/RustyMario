@@ -8,6 +8,7 @@ pub struct Player {
     texture: Texture2D,
     frame: usize,
     frame_timer: f32,
+    pub hurt_timer: f32,
 }
 
 impl Player {
@@ -19,6 +20,7 @@ impl Player {
             texture: Texture2D::empty(),
             frame: 0,
             frame_timer: 0.0,
+            hurt_timer: 0.0,
         }
     }
 
@@ -29,7 +31,7 @@ impl Player {
 
     pub fn update(&mut self, map: &TileMap) {
         let dt = get_frame_time();
-        let gravity = 900.0;
+        let gravity = 600.0;
         let jump_force = -350.0;
         let speed = 200.0;
 
@@ -88,4 +90,10 @@ impl Player {
             },
         );
     }
+
+    pub fn get_velocity(&self) -> Vec2 {
+        self.vel
+    }
+
 }
+

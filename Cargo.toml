@@ -1,8 +1,15 @@
 [package]
 name = "rusty_mario"
 version = "0.1.0"
-edition = "2024"
-build = "./src/build.rs"
+edition = "2021"            # Не 2024, пока нестабильна
+build = "src/build.rs"
 
 [dependencies]
-macroquad = "0.4"
+macroquad = { version = "0.4", features = ["audio"] }
+android_logger = "0.13"
+log = "0.4.27"
+
+[lib]
+name = "rusty_mario"
+path = "src/main.rs"         # ← теперь путь к lib.rs
+crate-type = ["cdylib"]
