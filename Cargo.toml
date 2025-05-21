@@ -1,0 +1,8 @@
+[package]
+name = "rusty_mario"
+version = "0.1.0"
+edition = "2024"
+build = "./src/build.rs"
+
+[dependencies]
+macroquad = "0.4"
