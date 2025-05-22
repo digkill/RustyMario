@@ -13,7 +13,6 @@ use macroquad::audio::play_sound_once;
 use macroquad::audio::Sound;
 use std::rc::Rc;
 
-
 fn check_enemy_stomp(
     player: &mut player::Player,
     enemies: &mut Vec<Enemy>,
@@ -61,8 +60,8 @@ async fn main() {
 
     let mut enemies = vec![
         Enemy::new(vec2(150.0, 350.0), enemy_texture.clone()),
-        Enemy::new(vec2(250.0, 350.0), enemy_texture.clone()),
-        Enemy::new(vec2(350.0, 350.0), enemy_texture.clone()),
+        Enemy::new(vec2(250.0, 150.0), enemy_texture.clone()),
+        Enemy::new(vec2(350.0, 250.0), enemy_texture.clone()),
     ];
 
     // Загружаем игрока
@@ -103,8 +102,6 @@ async fn main() {
             player.health = 0;
             screen_shake = 10.0;
 
-           
-            
             for exp in explosions.iter_mut() {
                 exp.update(get_frame_time());
             }
@@ -115,14 +112,16 @@ async fn main() {
             }
         }
         if player.health <= 0 {
-          
-          
-
-            draw_text("Game Over", screen_width() / 2.0 - 100.0, screen_height() / 2.0, 48.0, RED);
+            draw_text(
+                "Game Over",
+                screen_width() / 2.0 - 100.0,
+                screen_height() / 2.0,
+                48.0,
+                RED,
+            );
             next_frame().await;
             continue;
         }
-
 
         if player.hurt_timer > 0.0 {
             draw_text("Ouch!", player.pos.x - 10.0, player.pos.y - 20.0, 32.0, RED);
@@ -148,7 +147,7 @@ async fn main() {
                     32.0,
                     RED,
                 );
-            }
+            } 
         }
 
         // Обновляем и рисуем взрывы
@@ -170,8 +169,6 @@ async fn main() {
         draw_rectangle(10.0, 40.0, bar_width, 20.0, GRAY);
         draw_rectangle(10.0, 40.0, bar_width * health_percent, 20.0, RED);
         draw_text("HP", 10.0, 38.0, 20.0, BLACK);
-
-
 
         next_frame().await;
     }

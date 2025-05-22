@@ -90,15 +90,28 @@ impl Player {
         if map.is_hurt_tile(tile_x, tile_y) {
             self.damage();
         }
+
+        if self.hurt_timer > 0.0 {
+            self.hurt_timer -= dt; // или get_frame_time()
+            if self.hurt_timer < 0.0 {
+                self.hurt_timer = 0.0;
+            }
+        }
     }
 
     pub fn draw(&self) {
+        let alpha = if self.hurt_timer > 0.0 {
+            ((get_time() * 15.0).sin() * 0.5 + 0.5) as f32 // плавное мигание
+        } else {
+            1.0
+        };
+        
         let src = Rect::new(self.frame as f32 * 40.0, 0.0, 40.0, 64.0);
         draw_texture_ex(
             &self.texture,
             self.pos.x,
             self.pos.y,
-            WHITE,
+            Color::new(1.0, 1.0, 1.0, alpha),
             DrawTextureParams {
                 dest_size: Some(vec2(64.0, 64.0)),
                 source: Some(src),
