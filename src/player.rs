@@ -9,6 +9,7 @@ pub struct Player {
     frame: usize,
     frame_timer: f32,
     pub hurt_timer: f32,
+    pub health: i32,
 }
 
 impl Player {
@@ -21,6 +22,14 @@ impl Player {
             frame: 0,
             frame_timer: 0.0,
             hurt_timer: 0.0,
+            health: 3,
+        }
+    }
+
+    pub fn damage(&mut self) {
+        if self.hurt_timer <= 0.0 {
+            self.health -= 1;
+            self.hurt_timer = 1.0;
         }
     }
 
@@ -74,6 +83,13 @@ impl Player {
         } else {
             self.frame = 0;
         }
+
+        let tile_x = (self.pos.x / 64.0) as usize;
+        let tile_y = (self.pos.y / 64.0) as usize;
+
+        if map.is_hurt_tile(tile_x, tile_y) {
+            self.damage();
+        }
     }
 
     pub fn draw(&self) {
@@ -94,6 +110,7 @@ impl Player {
     pub fn get_velocity(&self) -> Vec2 {
         self.vel
     }
+    
 
 }
 

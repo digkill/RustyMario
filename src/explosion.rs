@@ -29,12 +29,14 @@ impl Explosion {
         }
     }
 
-    pub fn draw(&self, texture: &Texture2D) {
+    pub fn draw(&self, texture: &Texture2D, shake_offset: Vec2) {
+        
+        
         let src = Rect::new(self.frame as f32 * 64.0, 0.0, 64.0, 64.0);
         draw_texture_ex(
             texture,
-            self.pos.x,
-            self.pos.y,
+            self.pos.x + shake_offset.x,
+            self.pos.y + shake_offset.y,
             WHITE,
             DrawTextureParams {
                 source: Some(src),

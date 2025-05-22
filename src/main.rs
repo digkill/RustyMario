@@ -1,17 +1,18 @@
 use macroquad::prelude::*;
 
-mod player;
-mod map;
-mod enemy;
 mod build;
+mod enemy;
 mod explosion;
+mod map;
+mod player;
 
 use enemy::Enemy;
 use explosion::Explosion;
-use std::rc::Rc;
-use macroquad::audio::play_sound_once;
 use macroquad::audio::load_sound;
+use macroquad::audio::play_sound_once;
 use macroquad::audio::Sound;
+use std::rc::Rc;
+
 
 fn check_enemy_stomp(
     player: &mut player::Player,
@@ -43,14 +44,13 @@ fn check_enemy_stomp(
     }
 }
 
-
 #[macroquad::main("Rusty Mario")]
 async fn main() {
-
-
+    let mut screen_shake: f32 = 0.0;
     let explosion_sound = load_sound("assets/explosion.wav").await.unwrap();
     // Загружаем текстуру врага
-    let enemy_texture: Rc<Texture2D> = Rc::new(load_texture("assets/enemy_64x64.png").await.unwrap());
+    let enemy_texture: Rc<Texture2D> =
+        Rc::new(load_texture("assets/enemy_64x64.png").await.unwrap());
     enemy_texture.set_filter(FilterMode::Nearest);
 
     // Загружаем текстуру взрыва
@@ -70,26 +70,63 @@ async fn main() {
     player.load().await;
 
     // Загружаем карту
-    let tilemap = map::TileMap::new();
-
-
-    // Проверка "прыжка на врага"
-
+    let mut tilemap = map::TileMap::new();
+    tilemap.load().await;
 
     loop {
+        let shake_offset = if screen_shake > 0.0 {
+            screen_shake -= get_frame_time() * 50.0;
+            vec2(rand::gen_range(-2.0, 2.0), rand::gen_range(-2.0, 2.0))
+        } else {
+            vec2(0.0, 0.0)
+        };
         clear_background(SKYBLUE);
-        check_enemy_stomp(&mut player, &mut enemies, &mut explosions, explosion_sound.clone());
+        check_enemy_stomp(
+            &mut player,
+            &mut enemies,
+            &mut explosions,
+            explosion_sound.clone(),
+        );
         // Рисуем карту
         tilemap.draw();
 
         // Обновляем и рисуем игрока
         player.update(&tilemap);
         player.draw();
-        if player.hurt_timer > 0.0 {
-            draw_text("😵 Ouch!", player.pos.x - 10.0, player.pos.y - 20.0, 32.0, RED);
+
+        let tile_x = (player.pos.x / 30.0) as usize;
+        let tile_y = (player.pos.y / 30.0) as usize;
+
+        if tilemap.is_bomb_tile(tile_x, tile_y) {
+            explosions.push(Explosion::new(player.pos));
+            play_sound_once(&explosion_sound);
+            player.health = 0;
+            screen_shake = 10.0;
+
+           
+            
+            for exp in explosions.iter_mut() {
+                exp.update(get_frame_time());
+            }
+            explosions.retain(|e| !e.finished);
+
+            for exp in explosions.iter() {
+                exp.draw(&explosion_texture, shake_offset);
+            }
+        }
+        if player.health <= 0 {
+          
+          
+
+            draw_text("Game Over", screen_width() / 2.0 - 100.0, screen_height() / 2.0, 48.0, RED);
+            next_frame().await;
+            continue;
         }
 
 
+        if player.hurt_timer > 0.0 {
+            draw_text("Ouch!", player.pos.x - 10.0, player.pos.y - 20.0, 32.0, RED);
+        }
 
         // Обновляем и рисуем врагов
         for enemy in enemies.iter_mut() {
@@ -101,11 +138,17 @@ async fn main() {
                 let enemy_top = enemy.pos.y;
 
                 if player.get_velocity().y <= 0.0 || player_bottom > enemy_top + 20.0 {
-                    player.hurt_timer = 1.0;
+                    player.damage();
                 }
-                draw_text("💢 GLASSES MAN CAME FROM HABR! upyachka's!", 200.0, 50.0, 32.0, RED);
-            }
 
+                draw_text(
+                    "GLASSES MAN CAME FROM HABR! upyachka's!",
+                    200.0,
+                    50.0,
+                    32.0,
+                    RED,
+                );
+            }
         }
 
         // Обновляем и рисуем взрывы
@@ -115,11 +158,20 @@ async fn main() {
         }
         explosions.retain(|e| !e.finished);
         for exp in explosions.iter() {
-            exp.draw(&explosion_texture);
+            exp.draw(&explosion_texture, shake_offset);
         }
 
         // UI
         draw_text("< > move, _ jump", 10.0, 20.0, 24.0, DARKGRAY);
+
+        // UI: отрисовка полосы здоровья
+        let bar_width = 200.0;
+        let health_percent = player.health as f32 / 3.0;
+        draw_rectangle(10.0, 40.0, bar_width, 20.0, GRAY);
+        draw_rectangle(10.0, 40.0, bar_width * health_percent, 20.0, RED);
+        draw_text("HP", 10.0, 38.0, 20.0, BLACK);
+
+
 
         next_frame().await;
     }
