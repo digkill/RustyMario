@@ -3,6 +3,7 @@ use macroquad::prelude::*;
 pub struct TileMap {
     tiles: Vec<Vec<u8>>,
     bomb_texture: Texture2D,
+    tail_texture: Texture2D,
 }
 
 impl TileMap {
@@ -25,12 +26,15 @@ impl TileMap {
             vec![1; 20],
         ];
 
-        Self { tiles, bomb_texture: Texture2D::empty(), }
+        Self { tiles, bomb_texture: Texture2D::empty(), tail_texture: Texture2D::empty(),}
     }
     
     pub async fn load(&mut self) {
         self.bomb_texture = load_texture("assets/bomb.png").await.unwrap();
         self.bomb_texture.set_filter(FilterMode::Nearest);
+
+        self.tail_texture = load_texture("assets/tail.png").await.unwrap();
+        self.tail_texture.set_filter(FilterMode::Nearest);
     }
 
     pub fn draw(&self) {
@@ -41,8 +45,9 @@ impl TileMap {
                     // draw_rectangle((x as f32) * 32.0, (y as f32) * 32.0, 32.0, 32.0, DARKGREEN);
 
                     match tile {
-                        1 => draw_rectangle((x as f32) * 32.0, (y as f32) * 32.0, 32.0, 32.0, DARKGREEN),
+                        // 1 => draw_rectangle((x as f32) * 32.0, (y as f32) * 32.0, 32.0, 32.0, DARKGREEN),
                         //      1 => draw_texture(&ground_texture,(x as f32) * 32.0, (y as f32) * 32.0, WHITE);
+                        1 => draw_texture(&self.tail_texture, (x as f32) * 30.0, (y as f32) * 30.0, WHITE),
                         2 => draw_texture(&self.bomb_texture, (x as f32) * 30.0, (y as f32) * 30.0, WHITE),
 
                         _ => {}
