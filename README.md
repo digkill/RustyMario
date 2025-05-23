@@ -4,6 +4,8 @@
 
 Welcome to **Rusty Mario** — a classic side-scrolling platformer built from scratch in **Rust** using [`macroquad`](https://github.com/not-fl3/macroquad).
 
+YouTube: https://youtu.be/WkRKJkpK7EA?si=aezlswroZAt_2Hrm
+
 This game features:
 - 🧍 A quirky hero named **Upyachka**
 - 💥 Explosions and screen shake
